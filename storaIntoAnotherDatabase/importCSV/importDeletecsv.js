@@ -4,13 +4,13 @@ const fastcsv = require("fast-csv");
 const dotenv = require('dotenv')
 dotenv.config()
 
-const importCSV = (ws)=>{
-    let stream = fs.createReadStream('./csvfile.csv');
+const importDeleteCSV = (ws)=>{
+    let stream = fs.createReadStream('./deleted_Data_file.csv')
 
     let csvData = [];
     let rowHeader; 
     let array_Of_ID=[];
-    let userid;
+    let deleteid;
     //rowHeader.push(csvData[[0]])
     let csvStream = fastcsv
     .parse()
@@ -46,24 +46,27 @@ const importCSV = (ws)=>{
                 console.error(error);
             } else {
                 for(let i=0; i<array_Of_ID.length; i++){
-                    userid=array_Of_ID[i]
+                    deleteid=array_Of_ID[i]
                     console.log(userid)
                     console.log(csvData[i])
-                    connection.query("SELECT * FROM user WHERE id = ?",userid, (error, results) =>{
+                    connection.query("SELECT * FROM deleteduser WHERE id = ?",deleteid, (error, results) =>{
                         if (error) {
                             console.log(error);
-                            //break;
                         }
                         else{
                                 if (results.length > 0) {
-                                    console.log('already exist');
-                                   // continue;
-
-                                
+                                    console.log('already exist');                                
                                 } else {
-                                            connection.query("INSERT INTO user (id, name) VALUES (?)", [csvData[i]], (error, response) => {
+                                            connection.query("INSERT INTO deleteduser (id, name) VALUES (?)", [csvData[i]], (error, response) => {
                                             console.log(error || response);
-                                            });               
+                                            });     
+                                            connection.query("DELETE FROM user where id= ? ",deleteid, (error, results)=>{
+                                                if(error){
+                                                    console.log(error)
+                                                } else{
+                                                    console.log("Deleted Sccesfully")
+                                                }
+                                            })          
                                         }
                             }
                         });
@@ -74,5 +77,5 @@ const importCSV = (ws)=>{
     stream.pipe(csvStream);
 }
 
-module.exports = importCSV;
-//importCSV()
+//module.exports = importDeleteCSV;
+importDeleteCSV()

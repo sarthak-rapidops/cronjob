@@ -1,11 +1,9 @@
 const mongodb = require("mongodb").MongoClient;
-const Json2csvParser = require("json2csv").Parser;
+const fastcsv = require("fast-csv");
 const fs = require("fs");
 const dotenv = require('dotenv')
 dotenv.config()
-
-const convertCSV= ()=>{
-
+const ws = fs.createWriteStream(`${process.env.Stream}`);
 
 // let url = "mongodb://username:password@localhost:27017/";
 let url = "mongodb://localhost:27017/";
@@ -17,25 +15,21 @@ mongodb.connect(
     if (err) throw err;
 
     client
-      .db("example")
-      .collection("employee")
-      .find({})   
+      .db(`${process.env.Mongo_Database}`)
+      .collection(`${process.env.Collection}`)
+      .find({})
       .toArray((err, data) => {
         if (err) throw err;
 
         console.log(data);
-        const json2csvParser = new Json2csvParser({ header: true });
-        const csvData = json2csvParser.parse(data);
-
-        fs.writeFile("./csvfile.csv", csvData, function(error) {
-          if (error) throw error;
-          console.log("Write successfully!");
-        });
+        fastcsv
+          .write(data, { headers: true })
+          .on("finish", function() {
+            console.log("Write to CSVFILE successfully!");
+          })
+          .pipe(ws);
 
         client.close();
       });
   }
 );
-}
-module.exports = convertCSV;
-//convertCSV();

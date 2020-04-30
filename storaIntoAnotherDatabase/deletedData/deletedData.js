@@ -4,7 +4,7 @@ const fs = require("fs");
 const dotenv = require('dotenv')
 dotenv.config()
 
-const convertCSV= ()=>{
+const deletedData = ()=>{
 
 
 // let url = "mongodb://username:password@localhost:27017/";
@@ -19,7 +19,7 @@ mongodb.connect(
     client
       .db("example")
       .collection("employee")
-      .find({})   
+      .find({"name":"uvw"})   
       .toArray((err, data) => {
         if (err) throw err;
 
@@ -27,15 +27,19 @@ mongodb.connect(
         const json2csvParser = new Json2csvParser({ header: true });
         const csvData = json2csvParser.parse(data);
 
-        fs.writeFile("./csvfile.csv", csvData, function(error) {
+        fs.writeFile("../deleted_Data_file.csv", csvData, function(error) {
           if (error) throw error;
           console.log("Write successfully!");
-        });
-
+        });    
         client.close();
-      });
-  }
-);
+    });
+    client.db('example').collection("employee").deleteMany({"name":"uvw"},(err,obj)=>{
+        if(err) throw err;
+        console.log("data deleted")
+        client.close();
+        });
+    });
 }
-module.exports = convertCSV;
-//convertCSV();
+
+//module.exports = deletedData
+deletedData()

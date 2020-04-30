@@ -5,12 +5,13 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 const importCSV = (ws)=>{
-    let stream = fs.createReadStream('./csvfile.csv');
+    let deleteStream = fs.createReadStream('./deleted_Data_file.csv')
 
     let csvData = [];
     let rowHeader; 
     let array_Of_ID=[];
     let userid;
+    let deleteid;
     //rowHeader.push(csvData[[0]])
     let csvStream = fastcsv
     .parse()
@@ -63,7 +64,8 @@ const importCSV = (ws)=>{
                                 } else {
                                             connection.query("INSERT INTO user (id, name) VALUES (?)", [csvData[i]], (error, response) => {
                                             console.log(error || response);
-                                            });               
+                                            });     
+                                            connection.query("DELETE FROM user where id= ? ",)          
                                         }
                             }
                         });
